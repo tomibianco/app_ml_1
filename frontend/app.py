@@ -3,10 +3,10 @@ import requests
 import io
 
 # URL de la API FastAPI
-API_URL = 'http://localhost:8000/predict'  # Cambia esta URL por la de tu backend
+API_URL = 'http://localhost:8000/predict_input_download_csv'  # Cambia esta URL por la de tu backend
 
 # Título de la aplicación
-st.title("Predicción de Modelo ML con FastAPI")
+st.title("Predicción de Modelo ML para Banco")
 
 # Cargar archivo CSV
 uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])

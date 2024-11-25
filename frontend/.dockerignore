@@ -1,0 +1,25 @@
+# Ignorar artefactos de despliegue temporal
+*.bak
+*.tmp
+node_modules/
+npm-debug.log
+
+# Excluir contenido relacionado con Streamlit
+.streamlit/config.toml
+streamlit_app.log
+
+# Ignorar entornos virtuales
+venv/
+.env
+env/
+
+# Ignorar archivos de Python cacheados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Ignorar directorios de git
+.git/
+.gitignore

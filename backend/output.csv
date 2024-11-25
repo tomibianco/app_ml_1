@@ -1,4 +1,0 @@
-input,prediction
-"{'atraso': 235, 'vivienda': 'FAMILIAR', 'edad': 20, 'dias_lab': 120, 'exp_sf': 93, 'nivel_ahorro': 2, 'ingreso': 850, 'linea_sf': 0.0, 'deuda_sf': 0.0, 'score': 80, 'zona': 'Lima', 'clasif_sbs': 4, 'nivel_educ': 'TECNICA'}",Cliente moroso
-"{'atraso': 18, 'vivienda': 'FAMILIAR', 'edad': 32, 'dias_lab': 4598, 'exp_sf': 9, 'nivel_ahorro': 12, 'ingreso': 900, 'linea_sf': 1824.67, 'deuda_sf': 1933.75, 'score': 175, 'zona': 'La Libertad', 'clasif_sbs': 1, 'nivel_educ': 'TECNICA'}",Paga al día
-"{'atraso': 0, 'vivienda': 'FAMILIAR', 'edad': 26, 'dias_lab': 5148, 'exp_sf': 8, 'nivel_ahorro': 2, 'ingreso': 2400, 'linea_sf': 2797.38, 'deuda_sf': 188.29, 'score': 187, 'zona': 'Lima', 'clasif_sbs': 0, 'nivel_educ': 'UNIVERSITARIA'}",Paga al día
