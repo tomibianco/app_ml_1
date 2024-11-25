@@ -1,42 +1,50 @@
 import streamlit as st
 import requests
-import io
 
-# URL de la API FastAPI
-API_URL = 'http://localhost:8000/predict_input_download_csv'  # Cambia esta URL por la de tu backend
+# Configuración de la página
+st.set_page_config(page_title="Predictor CSV", layout="centered")
 
 # Título de la aplicación
-st.title("Predicción de Modelo ML para Banco")
+st.title("Predictor de CSV con Machine Learning")
 
-# Cargar archivo CSV
-uploaded_file = st.file_uploader("Sube un archivo CSV", type=["csv"])
+# Subir archivo CSV
+st.header("Sube tu archivo CSV")
+uploaded_file = st.file_uploader("Selecciona un archivo CSV", type=["csv"])
 
-if uploaded_file is not None:
-    # Mostrar botón para procesar el archivo
-    if st.button('Generar Predicción'):
-        # Enviar el archivo al backend
-        response = requests.post(
-            API_URL,
-            files={"file": ("uploaded_file.csv", uploaded_file.getvalue(), 'text/csv')}
-        )
-
-        # Manejar la respuesta del backend
-        if response.status_code == 200:
-            result_json = response.json()
-
-            # Mostrar los resultados en JSON
-            st.subheader("Resultado de la Predicción (JSON):")
-            st.json(result_json.get('predictions', {}))
-
-            # Permitir descarga del CSV si está disponible
-            csv_file = result_json.get('csv_file', None)
-            if csv_file:
-                st.subheader("Descargar archivo CSV con predicciones:")
-                st.download_button(
-                    label="Descargar CSV",
-                    data=csv_file,
-                    file_name="predicciones.csv",
-                    mime="text/csv"
+# Botón para enviar el archivo al backend
+if uploaded_file:
+    st.info("El archivo será procesado para generar predicciones.")
+    
+    # Botón de predicción
+    if st.button("Procesar y Obtener Predicciones"):
+        with st.spinner("Procesando el archivo..."):
+            try:
+                # Leer el contenido del archivo como binario
+                file_bytes = uploaded_file.read()
+                
+                # Preparar los datos para enviar al backend
+                files = {"file": (uploaded_file.name, file_bytes, "text/csv")}
+                
+                # Enviar la solicitud POST al backend
+                response = requests.post(
+                    "http://localhost:8000/predict_input_download_csv",  # Cambia por tu URL si corresponde
+                    files=files
                 )
-        else:
-            st.error(f"Error en la API: {response.status_code}, {response.text}")
+
+                if response.status_code == 200:
+                    # Guardar y descargar CSV
+                    st.success("Predicciones generadas exitosamente.")
+                    
+                    # Botón para descargar el archivo procesado
+                    st.download_button(
+                        label="Descargar CSV con Predicciones",
+                        data=response.content,
+                        file_name="predictions.csv",
+                        mime="text/csv",
+                    )
+                else:
+                    # Mostrar mensaje de error si ocurre algún problema
+                    st.error(f"Error: {response.json().get('detail', 'Error desconocido')}")
+
+            except Exception as e:
+                st.error(f"Error al conectarse con el backend: {str(e)}")
