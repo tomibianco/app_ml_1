@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import pandas as pd
+import io
 
 # Configuración de la página
 st.set_page_config(page_title="Predictor CSV", layout="centered")
@@ -42,6 +44,15 @@ if uploaded_file:
                         file_name="predictions.csv",
                         mime="text/csv",
                     )
+
+                    # Leer CSV y mostrar como DataFrame
+                    try:
+                        df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
+                        st.write("### Vista previa del archivo procesado:")
+                        st.dataframe(df)
+                    except Exception as e:
+                        st.warning("No se pudo leer el archivo para mostrarlo como tabla.")
+
                 else:
                     # Mostrar mensaje de error si ocurre algún problema
                     st.error(f"Error: {response.json().get('detail', 'Error desconocido')}")
