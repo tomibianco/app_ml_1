@@ -8,6 +8,7 @@ pydantic==2.10.0
 pydantic_core==2.27.0
 pydantic-extra-types==2.10.0
 pydantic-settings==2.6.1
+pyjwt==2.10.0
 scikit-learn==1.5.2
 seaborn==0.13.2
 SQLAlchemy==2.0.36

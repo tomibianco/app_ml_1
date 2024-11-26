@@ -3,82 +3,20 @@ import os
 import io
 from io import StringIO
 import pandas as pd
+from jwt_manager import create_token
+from config import label_mapping, columns_train
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from pydantic import BaseModel
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
+from schemas import User, Input, PredictionOutput
 
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
-app.version = "Beta 3.0"
+app.version = "Beta 4.0"
 
 scaler = None
 model = None
 db_session = None
-
-label_mapping = {
-    0: "Paga al dia",
-    1: "Cliente moroso"}
-
-columns_train = ['atraso',
-    'edad',
-    'dias_lab',
-    'exp_sf',
-    'nivel_ahorro',
-    'ingreso',
-    'linea_sf',
-    'deuda_sf',
-    'score',
-    'clasif_sbs',
-    'zona_Amazonas',
-    'zona_Ancash',
-    'zona_Apurimac',
-    'zona_Arequipa',
-    'zona_Ayacucho',
-    'zona_Cajamarca',
-    'zona_Callao',
-    'zona_Cuzco',
-    'zona_Huanuco',
-    'zona_Ica',
-    'zona_Junin',
-    'zona_La Libertad',
-    'zona_Lambayeque',
-    'zona_Lima',
-    'zona_Loreto',
-    'zona_Madre de Dios',
-    'zona_Moquegua',
-    'zona_Pasco',
-    'zona_Piura',
-    'zona_Puno',
-    'zona_San Martin',
-    'zona_Tacna',
-    'zona_Tumbes',
-    'zona_Ucayali',
-    'nivel_educ_SECUNDARIA',
-    'nivel_educ_SIN EDUCACION',
-    'nivel_educ_TECNICA',
-    'nivel_educ_UNIVERSITARIA',
-    'vivienda_ALQUILADA',
-    'vivienda_FAMILIAR',
-    'vivienda_PROPIA']
-
-class Input(BaseModel):
-    atraso: int
-    vivienda: str
-    edad: int
-    dias_lab: int
-    exp_sf: float
-    nivel_ahorro: int
-    ingreso: float
-    linea_sf: float
-    deuda_sf: float
-    score: int
-    zona: str
-    clasif_sbs: int
-    nivel_educ: str
-
-class PredictionOutput(BaseModel):
-    prediction: str
 
 
 # @app.on_event("startup")
@@ -113,7 +51,17 @@ def index():
     return {"Mensaje": "API de Predicciones con Modelo de Machine Learning"}
 
 
-@app.post("/predict_input_csv")
+@app.post("/login", tags=["auth"])
+def login(user: User):
+    """
+    Creación de token para validación de login.
+    """
+    if user.email == "admin@gmail.com" and user.password == "admin":
+        token: str = create_token(user.dict())
+        return JSONResponse(status_code=200, content=token)
+
+
+@app.post("/predict_input_csv", tags=["predictions"])
 async def predict_csv(file: UploadFile = File(...)):
     """
     Carga CSV, genera predicciones, y las almacena en base de datos.
@@ -141,7 +89,7 @@ async def predict_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
 
 
-@app.post("/predict_input_download_csv")
+@app.post("/predict_input_download_csv", tags=["predictions"])
 async def predict_csv(file: UploadFile = File(...)):
     """
     Carga CSV, genera predicciones, y descarga predicciones en CSV.
@@ -176,7 +124,7 @@ async def predict_csv(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
 
 
-@app.post("/predict_input", response_model = PredictionOutput)
+@app.post("/predict_input", response_model = PredictionOutput, tags=["predictions"])
 def predict_input(data: Input):
     """
     Realiza predicción en tiempo real a partir de input del usuario.
