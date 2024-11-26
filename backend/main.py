@@ -8,11 +8,13 @@ from config import label_mapping, columns_train
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas import User, UserOut, Input, PredictionOutput
+from schemas import User, UserOut, Token, Input, PredictionOutput
 from database import engine, Base, SessionLocal
 from crud import get_user_by_email, verify_password, create_user_db
 from sqlalchemy.orm import Session
 
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
@@ -53,7 +55,7 @@ def index():
     return {"Mensaje": "API de Predicciones con Modelo de Machine Learning"}
 
 
-@app.post("/login", response_model=UserOut, tags=["login"])
+@app.post("/login", response_model=Token, tags=["login"])
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Ruta de login para obtener el token.

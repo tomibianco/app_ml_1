@@ -4,7 +4,7 @@ import requests
 import os
 
 
-API_URL = "http://127.0.0.1:8000/token"
+API_URL = "http://127.0.0.1:8000/login"
 
 # Ruta a la carpeta de imágenes
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +47,7 @@ def login_screen():
                 st.session_state.username = username
                 st.session_state.access_token = token_data["access_token"]
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
+                st.rerun()
             else:
                 st.error("Usuario o contraseña incorrectos.")
         except Exception as e:
@@ -69,7 +70,7 @@ def main_app():
             st.session_state.login_status = False
             st.session_state.username = None
             st.session_state.access_token = None
-            st.experimental_rerun()
+            st.rerun()
 
 # Lógica de navegación
 if not st.session_state.login_status:
