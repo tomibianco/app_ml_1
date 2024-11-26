@@ -5,6 +5,12 @@ class User(BaseModel):
     email: str
     password: str
 
+class UserOut(BaseModel):
+    email: str
+
+    class Config:
+        orm_mode = True
+
 class Input(BaseModel):
     atraso: int
     vivienda: str

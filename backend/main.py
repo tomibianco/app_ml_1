@@ -5,27 +5,29 @@ from io import StringIO
 import pandas as pd
 from jwt_manager import create_token
 from config import label_mapping, columns_train
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse, JSONResponse
-from schemas import User, Input, PredictionOutput
+from fastapi.security import OAuth2PasswordRequestForm
+from schemas import User, UserOut, Input, PredictionOutput
+from database import engine, Base
+from crud import get_user_by_email, verify_password
+from sqlalchemy.orm import Session
 
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
-app.version = "Beta 4.0"
+app.version = "Beta 5.0"
 
 scaler = None
 model = None
 db_session = None
 
-
-# @app.on_event("startup")
-# def connect_to_database():
-#     """
-#     Establece la conexión con la base de datos.
-#     """
-#     global db_session
-#     db_session = SessionLocal()
+def get_db():
+    db = Session()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.on_event("startup")
@@ -51,20 +53,33 @@ def index():
     return {"Mensaje": "API de Predicciones con Modelo de Machine Learning"}
 
 
-@app.post("/login", tags=["auth"])
-def login(user: User):
+@app.post("/login", response_model=UserOut)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
-    Creación de token para validación de login.
+    Ruta de login para obtener el token.
     """
-    if user.email == "admin@gmail.com" and user.password == "admin":
-        token: str = create_token(user.dict())
-        return JSONResponse(status_code=200, content=token)
+    user = get_user_by_email(db, email=form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    access_token = create_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post("/users/", response_model=UserOut)
+def create_user(user: User, db: Session = Depends(get_db)):
+    """
+    Ruta para crear un usuario nuevo.
+    """
+    db_user = get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="El correo ya ha sido registrado.")
+    return create_user(db=db, user=user)
 
 
 @app.post("/predict_input_csv", tags=["predictions"])
 async def predict_csv(file: UploadFile = File(...)):
     """
-    Carga CSV, genera predicciones, y las almacena en base de datos.
+    Carga CSV, genera predicciones, y las entrega en json.
     """
     if file.content_type != "text/csv":
         raise HTTPException(status_code=400, detail="El archivo debe ser de tipo CSV.")
@@ -119,6 +134,9 @@ async def predict_csv(file: UploadFile = File(...)):
         csv_file = StringIO()
         df_output.to_csv(csv_file, index=False)
         csv_file.seek(0)
+        # new_prediction = (**df_output.dict())
+        # db.add(new_prediction)
+        # db.commit()
         return StreamingResponse(csv_file, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=predictions.csv"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
@@ -127,7 +145,7 @@ async def predict_csv(file: UploadFile = File(...)):
 @app.post("/predict_input", response_model = PredictionOutput, tags=["predictions"])
 def predict_input(data: Input):
     """
-    Realiza predicción en tiempo real a partir de input del usuario.
+    Realiza predicción en tiempo real a partir de input del usuario, y lo entrega en json.
     """
     try:
         df = pd.DataFrame(
