@@ -9,8 +9,8 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import User, UserOut, Input, PredictionOutput
-from database import engine, Base
-from crud import get_user_by_email, verify_password
+from database import engine, Base, SessionLocal
+from crud import get_user_by_email, verify_password, create_user_db
 from sqlalchemy.orm import Session
 
 
@@ -23,7 +23,7 @@ model = None
 db_session = None
 
 def get_db():
-    db = Session()
+    db = SessionLocal()
     try:
         yield db
     finally:
@@ -53,7 +53,7 @@ def index():
     return {"Mensaje": "API de Predicciones con Modelo de Machine Learning"}
 
 
-@app.post("/login", response_model=UserOut)
+@app.post("/login", response_model=UserOut, tags=["login"])
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Ruta de login para obtener el token.
@@ -65,7 +65,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post("/users/", response_model=UserOut)
+@app.post("/users/", response_model=UserOut, tags=["login"])
 def create_user(user: User, db: Session = Depends(get_db)):
     """
     Ruta para crear un usuario nuevo.
@@ -73,7 +73,8 @@ def create_user(user: User, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="El correo ya ha sido registrado.")
-    return create_user(db=db, user=user)
+    new_user = create_user_db(db=db, user=user)
+    return UserOut.from_orm(new_user)
 
 
 @app.post("/predict_input_csv", tags=["predictions"])
