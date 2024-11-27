@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
-from models import User
+from models import User, Predictions
 from passlib.context import CryptContext
+import database
+import asyncio
 
 # Iniciar el contexto de hash de contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

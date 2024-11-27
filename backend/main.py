@@ -12,6 +12,7 @@ from schemas import User, UserOut, Token, Input, PredictionOutput
 from database import engine, Base, SessionLocal
 from crud import get_user_by_email, verify_password, create_user_db
 from sqlalchemy.orm import Session
+from models import Predictions
 
 
 Base.metadata.create_all(bind=engine)
@@ -134,12 +135,31 @@ async def predict_csv(file: UploadFile = File(...)):
             output.append(row_values)
         columns = list(df.columns) + ['prediction']
         df_output = pd.DataFrame(output, columns=columns)
+        db = SessionLocal()
+        db_records = [
+            Predictions(
+                atraso=row["atraso"],
+                vivienda=row["vivienda"],
+                edad=row["edad"],
+                dias_lab=row["dias_lab"],
+                exp_sf=row["exp_sf"],
+                nivel_ahorro=row["nivel_ahorro"],
+                ingreso=row["ingreso"],
+                linea_sf=row["linea_sf"],
+                deuda_sf=row["deuda_sf"],
+                score=row["score"],
+                zona=row["zona"],
+                clasif_sbs=row["clasif_sbs"],
+                nivel_educ=row["nivel_educ"],
+                prediction=row["prediction"]
+            )
+            for _, row in df_output.iterrows()
+        ]
+        db.add_all(db_records)
+        db.commit()
         csv_file = StringIO()
         df_output.to_csv(csv_file, index=False)
         csv_file.seek(0)
-        # new_prediction = (**df_output.dict())
-        # db.add(new_prediction)
-        # db.commit()
         return StreamingResponse(csv_file, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=predictions.csv"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
