@@ -10,12 +10,10 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import User, UserOut, Token, Input, PredictionOutput
 from database import engine, Base, SessionLocal
-from crud import get_user_by_email, verify_password, create_user_db
+from crud import get_user_by_email, verify_password, create_user_db, create_db_and_tables
 from sqlalchemy.orm import Session
 from models import Predictions
 
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
@@ -24,6 +22,12 @@ app.version = "Beta 5.0"
 scaler = None
 model = None
 db_session = None
+
+
+#initial event of app - db initialization 
+@app.on_event("startup")
+async def startup():
+    create_db_and_tables()
 
 def get_db():
     db = SessionLocal()

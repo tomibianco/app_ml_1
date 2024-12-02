@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 from models import User, Predictions
 from passlib.context import CryptContext
-import database
-import asyncio
+from database import engine, Base
 
 # Iniciar el contexto de hash de contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -26,3 +25,9 @@ def create_user_db(db: Session, user: User):
 # Obtener un usuario por correo
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
+
+def create_db_and_tables():
+    """
+    Crea las tablas en la base de datos.
+    """
+    Base.metadata.create_all(bind=engine)
