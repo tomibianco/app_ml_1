@@ -1,26 +1,43 @@
-from prefect import task
+from prefect import task, flow
 
-
-
-
-class DeploymentTriggerConfig(BaseParameters):
-    """Parameters that are used to trigger the deployment"""
-
-    min_accuracy: float = 0.9
 
 
 
 @task
-def deployment_trigger(
-    accuracy: float,
-    config: DeploymentTriggerConfig,
-) -> bool:
+def deployment_trigger(accuracy: float, min_accuracy: float = 0.9) -> bool:
     """
-    Implementa un accionador de despliegue del modelo que mira si
-    el Accuracy del modelo es lo suficientemente bueno para ser desplegado.
+    Accionador despliega el modelo, si el Accuracy supera el mínimo deseado.
     """
+    return accuracy > min_accuracy
 
-    return accuracy > config.min_accuracy
+
+@task
+def predictor(service, data: str) -> np.ndarray:
+    """Realiza predicciones usando el servicio desplegado."""
+    # Simulación de inicio del servicio
+    print(f"Iniciando servicio: {service}")
+    
+    # Procesamiento de datos
+    data = json.loads(data)
+    data.pop("columns")
+    data.pop("index")
+    columns_for_df = [
+        "payment_sequential",
+        "payment_installments",
+        "payment_value",
+        "price",
+        "freight_value",
+        "product_name_lenght",
+        "product_description_lenght",
+        "product_photos_qty",
+        "product_weight_g",
+        "product_length_cm",
+        "product_height_cm",
+        "product_width_cm",
+    ]
+    df = pd.DataFrame(data["data"], columns=columns_for_df)
+    json_list = json.loads(json.dumps(list(df.T.to_dict().values())))
+    data_array = np.array(json_list)
 
 
 
