@@ -28,5 +28,5 @@ def clean_data(data: pd.DataFrame) -> Tuple[
         logging.info("Data preprocesada y dividida exitosamente")
         return X_train, X_test, y_train, y_test
     except Exception as e:
-        logging.error("", exc_info=True)
+        logging.error("El dataset no se ha preprocesado y dividido correctamente", exc_info=True)
         raise e

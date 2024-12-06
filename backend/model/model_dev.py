@@ -3,6 +3,7 @@ import optuna
 from abc import ABC, abstractmethod
 
 import pandas as pd
+import mlflow
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 
@@ -43,6 +44,7 @@ class RandomForest(Model):
     def train(self, X_train, y_train, **kwargs):
         model = RandomForestClassifier(**kwargs)
         model.fit(X_train, y_train)
+        mlflow.sklearn.log_model(model, "random_forest")
         return model
     
     def optimize(self, trial, X_train, y_train, X_test, y_test):
@@ -59,6 +61,7 @@ class XGBoost(Model):
     def train(self, X_train, y_train, **kwargs):
         model = XGBClassifier(**kwargs)
         model.fit(X_train, y_train)
+        mlflow.sklearn.log_model(model, "xgboost")
         return model
 
     def optimize(self, trial, X_train, y_train, X_test, y_test):

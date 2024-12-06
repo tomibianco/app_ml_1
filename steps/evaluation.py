@@ -4,6 +4,7 @@ from typing_extensions import Annotated
 
 import numpy as np
 import pandas as pd
+import mlflow
 from sklearn.base import ClassifierMixin
 from model.evaluation import Accuracy, Precision, Recall, F1
 from prefect import task
@@ -49,6 +50,12 @@ def evaluation(
         f1_score = f1_score_class.calculate_score(y_test, prediction)
 
         logging.info("Cálculo satisfactorio de métricas")
+
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1_score", f1_score)
+
         return accuracy, precision, recall, f1_score
     except Exception as e:
         logging.error("Error durante el cálculo de métricas", exc_info=True)
