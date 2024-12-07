@@ -1,4 +1,3 @@
-import logging
 import optuna
 from abc import ABC, abstractmethod
 
@@ -77,9 +76,9 @@ class HyperparameterTuner:
     """
     def __init__(self, model, X_train, y_train, X_test, y_test):
         self.model = model
-        self.x_train = X_train
+        self.X_train = X_train
         self.y_train = y_train
-        self.x_test = X_test
+        self.X_test = X_test
         self.y_test = y_test
 
     def optimize(self, n_trials=100):

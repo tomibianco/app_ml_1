@@ -21,9 +21,9 @@ class IngestDataCSV(IngestData):
 
     def get_data(self) -> pd.DataFrame:
         try:
-            df = pd.read_csv(self.file_path)
+            data = pd.read_csv(self.file_path)
             logging.info(f"Datos cargados correctamente desde {self.file_path}")
-            return df
+            return data
         except Exception as e:
             logging.error(f"Error al cargar el archivo CSV: {self.file_path}", exc_info=True)
             raise e
@@ -40,9 +40,9 @@ class IngestDataDB(IngestData):
     def get_data(self) -> pd.DataFrame:
         try:
             engine = create_engine(self.connection_string)
-            df = pd.read_sql(self.query, engine)
+            data = pd.read_sql(self.query, engine)
             logging.info("Datos cargados correctamente desde la base de datos.")
-            return df
+            return data
         except Exception as e:
             logging.error("Error al cargar datos desde la base de datos.", exc_info=True)
             raise e
@@ -58,7 +58,7 @@ def ingest_data(source: str, **kwargs) -> pd.DataFrame:
         kwargs: Argumentos para la clase correspondiente.
     
     Devuelve:
-        df: pd.DataFrame
+        data: pd.DataFrame
     """
     try:
         if source == "csv":
@@ -68,8 +68,8 @@ def ingest_data(source: str, **kwargs) -> pd.DataFrame:
         else:
             raise ValueError(f"Fuente no reconocida: {source}")
 
-        df = ingestor.get_data()
-        return df
+        data = ingestor.get_data()
+        return data
     except Exception as e:
         logging.error("Error en el proceso de ingesta de datos.", exc_info=True)
         raise e

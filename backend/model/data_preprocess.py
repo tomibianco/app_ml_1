@@ -65,7 +65,7 @@ class DataCleaning:
 
     def __init__(self, data: pd.DataFrame, strategy: DataStrategy) -> None:
         """Inicializa la clase DataCleaning con una estrategia especifica"""
-        self.df = data
+        self.data = data
         self.strategy = strategy
 
     def handle_data(self) -> Union[pd.DataFrame, pd.Series]:
