@@ -4,7 +4,7 @@ import pandas as pd
 import mlflow.sklearn
 from model.model_dev import RandomForest, XGBoost, HyperparameterTuner
 from sklearn.base import ClassifierMixin
-from steps.config import ModelNameConfig
+from tasks.config import ModelNameConfig
 from prefect import task
 
 

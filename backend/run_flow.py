@@ -2,11 +2,11 @@ from prefect import flow
 import mlflow
 import mlflow.sklearn
 from mlflow.tracking import MlflowClient
-from steps.ingest_data import ingest_data
-from steps.clean_data import clean_data
-from steps.model_train import model_train
-from steps.evaluation import evaluation
-from steps.save_model import save_model, model_path
+from tasks.ingest_data import ingest_data
+from tasks.clean_data import clean_data
+from tasks.model_train import model_train
+from tasks.evaluation import evaluation
+from tasks.save_model import save_model, model_path
 
 
 @flow
