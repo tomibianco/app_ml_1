@@ -26,8 +26,8 @@ def train_pipeline(source: str, **kwargs):
     mlflow.set_experiment("Experiment_1")
 
     with mlflow.start_run():
-        df = ingest_data(source=source, **kwargs)
-        X_train, X_test, y_train, y_test = clean_data(df)
+        data = ingest_data(source=source, **kwargs)
+        X_train, X_test, y_train, y_test = clean_data(data)
         model = model_train(X_train, X_test, y_train, y_test)
         accuracy, precision, recall, f1_score = evaluation(model, X_test, y_test)
 
