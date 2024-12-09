@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 from prefect import task
-from model.data_preprocess import DataPreprocess, DataSplit, DataCleaning
+from model.data_preprocess import DataPreprocess, DataCleaning, DataSplit
 from typing import Annotated, Tuple
 
 @task

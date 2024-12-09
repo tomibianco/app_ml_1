@@ -1,10 +1,9 @@
 import logging
-from typing import Tuple
-from typing_extensions import Annotated
-
 import numpy as np
 import pandas as pd
 import mlflow
+from typing import Tuple
+from typing_extensions import Annotated
 from sklearn.base import ClassifierMixin
 from model.evaluation import Accuracy, Precision, Recall, F1
 from prefect import task

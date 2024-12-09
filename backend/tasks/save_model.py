@@ -1,7 +1,7 @@
 import os
 import logging
 import joblib
-from typing import Dict, Any
+from typing import Any
 from prefect import task
 
 

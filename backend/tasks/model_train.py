@@ -1,11 +1,10 @@
 import logging
-
 import pandas as pd
 import mlflow.sklearn
+from prefect import task
 from model.model_dev import RandomForest, XGBoost, HyperparameterTuner
 from sklearn.base import ClassifierMixin
 from tasks.config import ModelNameConfig
-from prefect import task
 
 
 @task

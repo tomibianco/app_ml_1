@@ -14,7 +14,7 @@ class Evaluation(ABC):
         pass
 
 
-class Accuracy(ABC):
+class Accuracy(Evaluation):
     """
     Estrategia de evaluación de métrica que utiliza Accuracy
     """
@@ -34,7 +34,7 @@ class Accuracy(ABC):
             logging.error("Error ocurrido en el cálculo de clase Accuracy", exc_info=True)
             raise e
         
-class Precision(ABC):
+class Precision(Evaluation):
     """
     Estrategia de evaluación de métrica que utiliza Precision
     """
@@ -54,7 +54,7 @@ class Precision(ABC):
             logging.error("Error ocurrido en el cálculo de clase Precision", exc_info=True)
             raise e
         
-class Recall(ABC):
+class Recall(Evaluation):
     """
     Estrategia de evaluación de métrica que utiliza Recall
     """
@@ -74,7 +74,7 @@ class Recall(ABC):
             logging.error("Error ocurrido en el cálculo de clase Recall", exc_info=True)
             raise e
         
-class F1(ABC):
+class F1(Evaluation):
     """
     Estrategia de evaluación de métrica que utiliza F1
     """
