@@ -1,7 +1,5 @@
 import optuna
 from abc import ABC, abstractmethod
-
-import pandas as pd
 import mlflow
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier

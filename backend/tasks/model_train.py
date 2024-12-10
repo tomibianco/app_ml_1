@@ -4,7 +4,7 @@ import mlflow.sklearn
 from prefect import task
 from model.model_dev import RandomForest, XGBoost, HyperparameterTuner
 from sklearn.base import ClassifierMixin
-from tasks.config import ModelNameConfig
+from tasks.config import model_name
 
 
 @task
@@ -13,7 +13,6 @@ def model_train(
     X_test: pd.DataFrame,
     y_train: pd.Series,
     y_test: pd.Series,
-    model_name: ModelNameConfig,
 ) -> ClassifierMixin:
     """
     Args:

@@ -5,7 +5,7 @@ import mlflow
 from typing import Tuple
 from typing_extensions import Annotated
 from sklearn.base import ClassifierMixin
-from model.evaluation import Accuracy, Precision, Recall, F1
+from model.evaluate import Accuracy, Precision, Recall, F1
 from prefect import task
 
 
