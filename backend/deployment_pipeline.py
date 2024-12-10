@@ -1,6 +1,8 @@
-from prefect import flow
 import mlflow
 import mlflow.sklearn
+from prefect import flow
+from datetime import timedelta, datetime
+from prefect.client.schemas.schedules import IntervalSchedule
 from mlflow.tracking import MlflowClient
 from tasks.ingest_data import ingest_data
 from tasks.clean_data import clean_data
@@ -42,12 +44,15 @@ def train_pipeline(source: str, **kwargs):
         client.transition_model_version_stage(name="Model", versión=1, stage="Production")
     else:
         raise Exception("Rendimiento del modelo por debajo de métrica necesaria.")
-    
+
+
+schedule = IntervalSchedule(interval=timedelta(days=5))
+
 
 if __name__ == "__main__":
     train_pipeline(
-        source="csv",
-        file_path="./data/data.csv"
+        source= "csv",
+        file_path= "/home/tomibianco/appml/data/data.csv"
 
         # source="db",
         # connection_string="postgresql://usuario:contraseña@localhost:5432/mi_base_de_datos",
@@ -56,4 +61,22 @@ if __name__ == "__main__":
         #     FROM tabla
         #     WHERE intervalo_temporal
         # """
+
+    ).deploy(
+        name="Scheduled Training Pipeline",
+        parameters={
+            "source": "csv",
+            "file_path": "/home/tomibianco/appml/data/data.csv"
+
+            # "source": "db",
+            # "connection_string": "postgresql://usuario:contraseña@localhost:5432/mi_base_de_datos",
+            # "query": """
+            #     SELECT variable_1, variable_2
+            #     FROM tabla
+            #     WHERE intervalo_temporal
+            # """
+            
+            },
+        work_queue_name="pipeline_1",
+        schedule=schedule,
     )

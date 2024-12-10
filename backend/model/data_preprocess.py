@@ -71,7 +71,7 @@ class DataCleaning:
     def handle_data(self) -> Union[pd.DataFrame, pd.Series]:
         """Maneja la data en funcion de la estrategia"""
         try:
-            return self.strategy.handle_data(self.df)
+            return self.strategy.handle_data(self.data)
         except Exception as e:
             logging.error("Error en el manejo de la data", exc_info=True)
             raise e

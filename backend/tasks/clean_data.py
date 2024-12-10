@@ -19,7 +19,7 @@ def clean_data(data: pd.DataFrame) -> Tuple[
     """
     try:
         preprocess_strategy = DataPreprocess()
-        data_cleaning = DataPreprocess(data, preprocess_strategy)
+        data_cleaning = DataCleaning(data, preprocess_strategy)
         preprocessed_data = data_cleaning.handle_data()
 
         split_strategy = DataSplit()
