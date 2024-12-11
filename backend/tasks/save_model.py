@@ -5,7 +5,7 @@ from typing import Any
 from prefect import task
 
 
-model_path = os.path.join(os.path.dirname(__file__), "model")
+model_path = "/home/tomibianco/appml/backend/model"
 
 @task
 def save_model(model: Any, model_path: str):
