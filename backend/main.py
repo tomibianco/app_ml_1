@@ -17,7 +17,7 @@ from models import Predictions
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
-app.version = "Beta 5.0"
+app.version = "Beta 1.0"
 
 scaler = None
 model = None
@@ -57,7 +57,7 @@ def index():
     """
     Ruta de prueba para verificar la API.
     """
-    return {"Mensaje": "API de Predicciones con Modelo de Machine Learning"}
+    return {"Mensaje": "API de Predicciones de Mora para Clientes Bancarios"}
 
 
 @app.post("/login", response_model=Token, tags=["login"])
