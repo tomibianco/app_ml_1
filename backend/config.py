@@ -2,7 +2,8 @@ label_mapping = {
     0: "Paga al dia",
     1: "Cliente moroso"}
 
-columns_train = ['atraso',
+columns_train = [
+    'atraso',
     'edad',
     'dias_lab',
     'exp_sf',
@@ -20,6 +21,7 @@ columns_train = ['atraso',
     'zona_Cajamarca',
     'zona_Callao',
     'zona_Cuzco',
+    'zona_Huancavelica',
     'zona_Huanuco',
     'zona_Ica',
     'zona_Junin',
@@ -42,4 +44,5 @@ columns_train = ['atraso',
     'nivel_educ_UNIVERSITARIA',
     'vivienda_ALQUILADA',
     'vivienda_FAMILIAR',
-    'vivienda_PROPIA']
+    'vivienda_PROPIA'
+    ]

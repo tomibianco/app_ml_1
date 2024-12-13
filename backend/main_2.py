@@ -1,42 +1,35 @@
-model_name = "Model"
-stage = "Production"
-
-model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{stage}")
-
-predictions = model.predict(data)
-
-
-
-
-import joblib
-import os
 import io
-from io import StringIO
 import pandas as pd
 import mlflow.pyfunc
 from jwt_manager import create_token
 from config import label_mapping, columns_train
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
-from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas import User, UserOut, Token, Input, PredictionOutput
-from database import engine, Base, SessionLocal
+from schemas import User, UserOut, Token
+from database import SessionLocal
 from crud import get_user_by_email, verify_password, create_user_db, create_db_and_tables
 from sqlalchemy.orm import Session
-from models import Predictions
 
 
 app = FastAPI()
 app.title = "Proyecto Mora Banco"
 app.version = "Beta 2.0"
 
+
+def load_production_model(model_name="Model"):
+    return mlflow.pyfunc.load_model(f"models:/{model_name}/Production")
+
+
 db_session = None
+mlflow.set_tracking_uri("sqlite:///backend.db")
+model = load_production_model()
 
 
-#initial event of app - db initialization 
 @app.on_event("startup")
 async def startup():
     create_db_and_tables()
+    global model
+    model = load_production_model()
 
 def get_db():
     db = SessionLocal()
@@ -63,7 +56,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     access_token = create_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-
 @app.post("/users/", response_model=UserOut, tags=["login"])
 def create_user(user: User, db: Session = Depends(get_db)):
     """
@@ -86,8 +78,8 @@ async def predict_csv(file: UploadFile = File(...)):
         content = await file.read()
         csv_content = io.StringIO(content.decode("utf-8"))
         df = pd.read_csv(csv_content)
-        df_cleaned = df.dropna(subset=["linea_sf", "deuda_sf", "exp_sf"])
-        df_encoder = pd.get_dummies(df_cleaned, columns = ["zona", "nivel_educ", "vivienda"])
+        # df_cleaned = df.drop(["linea_sf", "deuda_sf", "exp_sf"], axis=1)
+        df_encoder = pd.get_dummies(df, columns = ["zona", "nivel_educ", "vivienda"])
         for col in columns_train:
             if col not in df_encoder.columns:
                 df_encoder[col] = 0
@@ -100,49 +92,3 @@ async def predict_csv(file: UploadFile = File(...)):
         return {"predictions": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
-
-
-
-
-
-# Cargar el modelo en producción desde MLflow
-def load_production_model(model_name="my_model"):
-    return mlflow.pyfunc.load_model(f"models:/{model_name}/Production")
-
-model = load_production_model()
-
-@app.post("/predict")
-def predict(data: dict):
-    input_data = pd.DataFrame(data["data"], columns=data["columns"])
-    predictions = model.predict(input_data)
-    return {"predictions": predictions.tolist()}
-
-@app.on_event("startup")
-async def update_model():
-    global model
-    model = load_production_model()
-
-
-
-
-
-
-
-#AGREGAR DESPUES DEL ENTRENAMIENTO DEL MODELO - PARA INFORMAR ACTUALIZACION A API
-# Cada vez que el pipeline de Prefect registra un nuevo modelo en Production, tu API debe actualizar el modelo cargado.
-# Esto se puede manejar automáticamente.
-
-# A. Configurar Prefect para notificar a la API
-# Agrega una tarea al pipeline de Prefect para enviar una solicitud a la API para actualizar el modelo:
-
-import requests
-
-def notify_api(api_url="http://localhost:8000/update_model"):
-    response = requests.post(api_url)
-    if response.status_code == 200:
-        print("Modelo actualizado en la API.")
-
-
-
-
-usar label mapping en config

@@ -6,7 +6,7 @@ from tasks.ingest_data import ingest_data
 from tasks.clean_data import clean_data
 from tasks.model_train import model_train
 from tasks.evaluation import evaluation
-from tasks.save_model import save_model, model_path
+from tasks.save_model import notify_api_task, save_model, model_path
 
 
 @flow
@@ -39,6 +39,7 @@ def train_pipeline(source: str, **kwargs):
             # Asignar el modelo a la etapa "Production"
             client = MlflowClient()
             client.transition_model_version_stage(name="Model", version=1, stage="Production")
+            notify_api_task(api_url="http://localhost:8000/update_model")
         else:
             raise Exception("Rendimiento del modelo por debajo de métrica necesaria.")
 
