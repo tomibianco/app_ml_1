@@ -16,8 +16,8 @@ app.title = "Proyecto Mora Banco"
 app.version = "Beta 2.0"
 
 
-def load_production_model(model_name="Model"):
-    return mlflow.pyfunc.load_model(f"models:/{model_name}/Production")
+def load_production_model(model_name="Model", alias="champion"):
+    return mlflow.pyfunc.load_model(f"models:/{model_name}@{alias}")
 
 
 db_session = None

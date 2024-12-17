@@ -38,7 +38,7 @@ def train_pipeline(source: str, **kwargs):
 
             # Asignar el modelo a la etapa "Production"
             client = MlflowClient()
-            client.transition_model_version_stage(name="Model", version=1, stage="Production")
+            client.set_registered_model_alias("Model", "champion", 1)
             notify_api_task(api_url="http://localhost:8000/update_model")
         else:
             raise Exception("Rendimiento del modelo por debajo de métrica necesaria.")
