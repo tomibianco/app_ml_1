@@ -38,6 +38,7 @@ def model_train(
         best_params = tuner.optimize()
         trained_model = model.train(X_train, y_train, **best_params)
         logging.info("Modelo entrenado exitosamente")
+        mlflow.log_params(best_params)
         mlflow.sklearn.log_model(trained_model, "model")
         print(f"default artifacts URI: {mlflow.get_artifact_uri()}")
         return trained_model
