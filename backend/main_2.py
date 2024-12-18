@@ -1,8 +1,6 @@
-import io
-import pandas as pd
 import mlflow.pyfunc
 from jwt_manager import create_token
-from config import label_mapping, columns_train
+from utils import load_production_model, validate_csv, load_csv, preprocess_dataframe, make_predictions, package_predictions
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import User, UserOut, Token
@@ -16,10 +14,6 @@ app.title = "Proyecto Mora Banco"
 app.version = "Beta 2.0"
 
 
-def load_production_model(model_name="Model", alias="champion"):
-    return mlflow.pyfunc.load_model(f"models:/{model_name}@{alias}")
-
-
 db_session = None
 mlflow.set_tracking_uri("sqlite:///backend.db")
 model = load_production_model()
@@ -27,9 +21,10 @@ model = load_production_model()
 
 @app.on_event("startup")
 async def startup():
+    """
+    Endpoint que inicia las tablas de bases de datos, y en caso de no existir, las crea.
+    """
     create_db_and_tables()
-    global model
-    model = load_production_model()
 
 
 def get_db():
@@ -46,6 +41,15 @@ def index():
     Ruta de prueba para verificar la API.
     """
     return {"Mensaje": "API de Predicciones de Mora para Clientes Bancarios"}
+
+
+@app.post("/update_model")
+async def update_model():
+    """
+    Endpoint que actualiza el modelo cuando se despliega uno nuevo en producción.
+    """
+    global model
+    model = load_production_model()
 
 
 @app.post("/login", response_model=Token, tags=["login"])
@@ -77,25 +81,11 @@ async def predict_csv(file: UploadFile = File(...)):
     """
     Carga CSV, genera predicciones, y las entrega en json.
     """
-    if file.content_type != "text/csv":
-        raise HTTPException(status_code=400, detail="El archivo debe ser de tipo CSV.")
-    try:
-        content = await file.read()
-        csv_content = io.StringIO(content.decode("utf-8"))
-        df = pd.read_csv(csv_content)
-        df_cleaned = df.drop(["linea_sf", "deuda_sf", "exp_sf"], axis=1)
-        df_encoder = pd.get_dummies(df_cleaned, columns = ["zona", "nivel_educ", "vivienda"])
-
-        for col in columns_train:
-            if col not in df_encoder.columns:
-                df_encoder[col] = 0
-        df_encoder = df_encoder[columns_train]
-        
-        pred = model.predict(df_encoder)
-        pred_labels = [label_mapping[p] for p in pred]
-        output = []
-        for original_row, pred_label in zip(df.to_dict(orient="records"), pred_labels):
-            output.append({"input": original_row, "prediction": pred_label})
-        return {"predictions": output}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error procesando el archivo: {str(e)}")
+    validate_csv(file)
+    df = load_csv(file)
+    columns_to_drop = ["linea_sf", "deuda_sf", "exp_sf"]
+    columns_to_encode = ["zona", "nivel_educ", "vivienda"]
+    df_encoded = preprocess_dataframe(df, columns_to_drop, columns_to_encode)
+    pred_labels = make_predictions(model, df_encoded)
+    output = package_predictions(df.to_dict(orient="records"), pred_labels)
+    return {"predictions": output}
