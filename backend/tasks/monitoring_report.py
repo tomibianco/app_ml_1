@@ -2,9 +2,7 @@ import os
 import logging
 from prefect import task
 import pandas as pd
-from prefect_email import EmailServerCredentials, email_send_message
 from database import engine
-from sqlalchemy import create_engine
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset
 
@@ -55,27 +53,4 @@ def generate_report(reference_data, current_data):
         logging.info(f"Reporte generado: {report_path}")
     except Exception as e:
         logging.error("Error en el proceso de generación de reporte.", exc_info=True)
-        raise e
-
-@task
-def send_email_alert(message: str, attachment_path: str):
-    """
-    Adjunta reporte y lo envía por correo.
-    """
-    try:
-        email_server_credentials = EmailServerCredentials.load("my-email-block-2")
-        with open(attachment_path, "rb") as file:
-            attachment_content = file.read()
-
-        # Enviar el email con el archivo adjunto
-        email_send_message(
-            email_server_credentials=email_server_credentials,
-            email_to="contacto@vistalia.cl",
-            subject="Nuevo Reporte Evidently",
-            msg=message,
-            attachments=[{"file_name": "report_data_drift.html", "content": attachment_content}]
-        )
-        logging.info("Correo enviado exitosamente con el reporte adjunto.")
-    except Exception as e:
-        logging.error("Error en el proceso de envío de reporte por correo.", exc_info=True)
         raise e

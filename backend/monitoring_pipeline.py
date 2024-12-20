@@ -1,6 +1,6 @@
 import logging
 from prefect import flow
-from tasks.monitoring_report import load_csv_data, generate_report, send_email_alert
+from tasks.monitoring_report import load_csv_data, generate_report
 
 
 @flow
@@ -17,11 +17,6 @@ def monitoring_pipeline():
         reference_data, current_data = load_csv_data()
         generate_report(reference_data, current_data)
         logging.info("Reporte generado satisfactoriamente")
-        send_email_alert(
-            message="Se ha generado un nuevo informe Evidently. Revisa el archivo adjunto.",
-            attachment_path=f"reports/report_data_drift.html"
-            )
-        logging.info("Correo con reporte enviado satisfactoriamente")
     except Exception as e:
         logging.error("Error durante ejecución de pipeline de monitoreo", exc_info=True)
     
@@ -29,10 +24,10 @@ def monitoring_pipeline():
 if __name__ == "__main__":
     monitoring_pipeline()
 
-    # monitoring_pipeline.from_source(
-    #     source="https://github.com/tomibianco/app_ml_1.git",
-    #     entrypoint="/home/tomibianco/appml/backend/monitoring_pipeline.py:monitoring_pipeline"
-    # ).deploy(
-    #     name="Scheduled Monitoring Pipeline",
-    #     work_pool_name="my-managed-pool",
-    # )
+    monitoring_pipeline.from_source(
+        source="https://github.com/tomibianco/app_ml_1.git",
+        entrypoint="/home/tomibianco/appml/backend/monitoring_pipeline.py:monitoring_pipeline"
+    ).deploy(
+        name="Scheduled Monitoring Pipeline",
+        work_pool_name="my-managed-pool",
+    )
