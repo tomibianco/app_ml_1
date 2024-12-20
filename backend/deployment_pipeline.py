@@ -31,17 +31,17 @@ def train_pipeline(source: str, **kwargs):
         model = model_train(X_train, X_test, y_train, y_test)
         accuracy, precision, recall, f1_score = evaluation(model, X_test, y_test)
 
-        # Guardar modelo y desplegar en Mlflow si Accuracy > 0,88
-        if accuracy > 0.88:
+        # Guardar modelo y desplegar en Mlflow si Accuracy > 0,92
+        if accuracy > 0.92:
             save_model(model, model_path)
             mlflow.register_model(f"runs:/{mlflow.active_run().info.run_id}/model", "Model")
 
-            # Asignar el modelo a la etapa "Production"
+            # Desplegar el modelo en producción y notificar actualización a API
             client = MlflowClient()
             client.set_registered_model_alias("Model", "champion", 1)
             notify_api_task(api_url="http://localhost:8000/update_model")
         else:
-            raise Exception("Rendimiento del modelo por debajo de métrica necesaria.")
+            raise Exception("Rendimiento del modelo por debajo de métrica necesaria.", exc_info=True)
 
 
 if __name__ == "__main__":
