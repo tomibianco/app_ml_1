@@ -9,7 +9,7 @@ st.set_page_config(page_title="Mora Banco", layout="centered")
 
 # Título de la aplicación
 st.title("Proyecto Mora Banco")
-st.subtitle("Beta 2.0")
+st.subheader("Beta 2.0")
 
 # Subir archivo CSV
 st.header("Subí tu archivo CSV")
@@ -36,24 +36,25 @@ if uploaded_file:
                 )
 
                 if response.status_code == 200:
-                    # Guardar y descargar CSV
                     st.success("Predicciones generadas exitosamente.")
-                    
-                    # Botón para descargar el archivo procesado
-                    st.download_button(
-                        label="Descargar CSV con Predicciones",
-                        data=response.content,
-                        file_name="predictions.csv",
-                        mime="text/csv",
-                    )
 
                     # Leer CSV y mostrar como DataFrame
                     try:
-                        df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-                        st.write("### Vista previa del archivo procesado:")
+                        data = response.json()
+                        predictions = data.get("predictions", [])
+                        df = pd.DataFrame(predictions)
+                        st.write("Predicciones:")
                         st.dataframe(df)
                     except Exception as e:
                         st.warning("No se pudo leer el archivo para mostrarlo como tabla.")
+
+                    # Botón para descargar el archivo procesado
+                    # st.download_button(
+                    #     label="Descargar CSV con Predicciones",
+                    #     data=response.content,
+                    #     file_name="predictions.csv",
+                    #     mime="text/csv",
+                    # )
 
                 else:
                     # Mostrar mensaje de error si ocurre algún problema
