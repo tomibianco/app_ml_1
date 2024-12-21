@@ -1,24 +1,26 @@
-import streamlit as st
-import requests
-import pandas as pd
 import io
+import requests
+import streamlit as st
+import pandas as pd
+
 
 # Configuración de la página
-st.set_page_config(page_title="Predictor CSV", layout="centered")
+st.set_page_config(page_title="Mora Banco", layout="centered")
 
 # Título de la aplicación
-st.title("Predictor de CSV con Machine Learning")
+st.title("Proyecto Mora Banco")
+st.subtitle("Beta 2.0")
 
 # Subir archivo CSV
-st.header("Sube tu archivo CSV")
+st.header("Subí tu archivo CSV")
 uploaded_file = st.file_uploader("Selecciona un archivo CSV", type=["csv"])
 
 # Botón para enviar el archivo al backend
 if uploaded_file:
-    st.info("El archivo será procesado para generar predicciones.")
+    st.info("El archivo será procesado para generar las predicciones.")
     
     # Botón de predicción
-    if st.button("Procesar y Obtener Predicciones"):
+    if st.button("Procesar y obtener Predicciones"):
         with st.spinner("Procesando el archivo..."):
             try:
                 # Leer el contenido del archivo como binario
@@ -29,7 +31,7 @@ if uploaded_file:
                 
                 # Enviar la solicitud POST al backend
                 response = requests.post(
-                    "http://localhost:8000/predict_input_download_csv",  # Cambia por tu URL si corresponde
+                    "http://localhost:8000/predictions",  # Cambia por tu URL si corresponde
                     files=files
                 )
 
