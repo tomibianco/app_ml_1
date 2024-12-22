@@ -2,13 +2,11 @@ FROM python:3.12-slim
 
 WORKDIR /appml
 
-ENV ENVIRONMENT=production
-
-COPY requirements.txt .
+COPY frontend/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./frontend/ .
 
 EXPOSE 8501
 
