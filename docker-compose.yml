@@ -25,19 +25,19 @@ services:
     networks:
       - app_network
 
-  # Servicio para base de datos PostgreSQL
-  db:
-    image: postgres:15
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: #appml2024
-      POSTGRES_DB: db-postgresql-appml
-    ports:
-      - "5432:5432"
-    networks:
-      - app_network      
-      
-  networks:
-    app_network:
-      driver: bridge
+  # Servicio para base de datos PostgreSQL (comentado)
+  # db:
+  #   image: postgres:15
+  #   container_name: postgres_db
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: #appml2024
+  #     POSTGRES_DB: db-postgresql-appml
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - app_network      
+
+networks:
+  app_network:
+    driver: bridge
