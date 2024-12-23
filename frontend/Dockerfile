@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /appml
 
-COPY frontend/requirements.txt .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
