@@ -6,7 +6,7 @@ COPY frontend/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./frontend/ .
+COPY . .
 
 EXPOSE 8501
 
