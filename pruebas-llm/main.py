@@ -23,4 +23,4 @@ Dime cuantos trabajadores tienen más de 5 ventas
 response = llm.invoke(query)
 
 # Mostramos la respuesta
-return response
+print(response)
