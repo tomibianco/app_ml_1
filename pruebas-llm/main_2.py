@@ -45,7 +45,7 @@ def main():
     try:
         response = llm.invoke(prompt)
         logging.info("Respuesta obtenida del modelo.")
-        print(response)
+        return response
     except Exception as e:
         logging.error(f"Error durante la invocación del modelo: {e}")
 
